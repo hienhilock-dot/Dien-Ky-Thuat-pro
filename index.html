@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Điện Kỹ Thuật Pro</title>
+<style>
+:root{--bg:#f3f6fb;--panel:#fff;--ink:#172033;--muted:#65718a;--line:#dbe3ef;--blue:#175cd3;--blue2:#eaf2ff;--green:#067647;--orange:#b54708}
+*{box-sizing:border-box}body{margin:0;font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:linear-gradient(120deg,#102a56,#175cd3);color:white;padding:22px max(18px,calc((100% - 1200px)/2));}
+header h1{margin:0;font-size:27px}header p{margin:4px 0 0;color:#d8e6ff}
+main{max-width:1200px;margin:22px auto;padding:0 16px 36px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}.tab{border:1px solid var(--line);background:#fff;color:var(--ink);padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:650}.tab.active{background:var(--blue);border-color:var(--blue);color:#fff}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:0 2px 8px #182b4b08}
+h2{font-size:20px;margin:0 0 5px}h3{font-size:16px;margin:18px 0 8px}.sub{color:var(--muted);margin:0 0 14px}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:12px}.field{grid-column:span 3;min-width:0}.field.wide{grid-column:span 6}.field.full{grid-column:1/-1}
+label{display:block;font-weight:650;font-size:13px;margin-bottom:5px;color:#344054}
+input,select{width:100%;border:1px solid #cbd5e1;border-radius:8px;padding:10px;font:inherit;background:#fff;color:var(--ink)}
+button.primary,button.secondary,button.danger{border:0;border-radius:9px;padding:10px 14px;font:inherit;font-weight:700;cursor:pointer}
+button.primary{background:var(--blue);color:white}button.secondary{background:var(--blue2);color:var(--blue)}button.danger{background:#fff0f0;color:#b42318}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.result{background:#f7faff;border:1px solid #d9e7ff;border-radius:10px;padding:14px;margin-top:14px}.result strong{color:#1149a5}.steps{margin:8px 0 0;padding-left:22px}.steps li{margin:6px 0}.note{font-size:13px;color:var(--muted)}.pill{display:inline-block;background:#edf2f8;border-radius:20px;padding:3px 9px;font-size:12px;color:#475467}
+.hidden{display:none!important}
+.draw-layout{display:grid;grid-template-columns:240px 1fr;gap:14px}.palette{display:flex;flex-direction:column;gap:7px}.palette button{text-align:left;background:#f8fafc;border:1px solid var(--line);border-radius:8px;padding:9px;cursor:pointer}.palette button:hover{background:var(--blue2)}
+#drawing{width:100%;height:340px;border:1px dashed #b9c8dd;border-radius:10px;background-color:#fff;background-image:linear-gradient(#edf1f7 1px,transparent 1px),linear-gradient(90deg,#edf1f7 1px,transparent 1px);background-size:20px 20px}
+.part{cursor:pointer}.part.selected{filter:drop-shadow(0 0 4px #175cd3)}.parts-list{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.parts-list button{border:1px solid var(--line);border-radius:8px;background:#fff;padding:7px 10px;cursor:pointer}.parts-list button.selected{border-color:var(--blue);background:var(--blue2)}
+footer{color:var(--muted);font-size:12px;text-align:center;padding:10px}
+@media(max-width:700px){.field{grid-column:span 6}.field.wide{grid-column:1/-1}.draw-layout{grid-template-columns:1fr}.palette{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}header h1{font-size:23px}}
+</style>
+</head>
+<body>
+<header><h1>⚡ Điện Kỹ Thuật Pro</h1><p>Công cụ học tập: mạch điện · máy điện · lưới điện</p></header>
+<main>
+<div class="tabs" role="tablist">
+<button class="tab active" data-tab="circuit">1. Vẽ mạch điện</button>
+<button class="tab" data-tab="rlc">2. Mạch RLC</button>
+<button class="tab" data-tab="machine">3. Máy điện 3 pha</button>
+<button class="tab" data-tab="grid">4. Lưới điện</button>
+</div>
+<section id="circuit" class="tabpage">
+<div class="panel">
+<h2>Bảng vẽ sơ đồ mạch</h2><p class="sub">Thêm linh kiện để tạo sơ đồ minh họa. Chọn linh kiện bên dưới để đổi tên/giá trị hoặc xóa. Bản đầu tiên hỗ trợ tính mạch điện trở DC nối tiếp và song song bằng biểu mẫu riêng.</p>
+<div class="draw-layout">
+<div><div class="palette">
+<button data-add="R">＋ Điện trở R</button><button data-add="L">＋ Cuộn cảm L</button><button data-add="C">＋ Tụ điện C</button><button data-add="V">＋ Nguồn áp U</button><button data-add="I">＋ Nguồn dòng I</button><button data-add="GND">＋ Nối đất</button>
+</div><div id="selected-editor" class="hidden">
+<h3>Linh kiện đã chọn</h3><div class="field" style="grid-column:auto"><label>Tên</label><input id="part-name"></div><div style="margin-top:8px"><label>Giá trị / ghi chú</label><input id="part-value"></div><div class="actions"><button class="primary" id="save-part">Lưu</button><button class="danger" id="delete-part">Xóa</button></div></div></div>
+<div><svg id="drawing" viewBox="0 0 700 340" aria-label="Sơ đồ mạch điện"></svg><div id="parts-list" class="parts-list"></div><div class="actions"><button class="secondary" id="clear-drawing">Xóa sơ đồ</button><button class="secondary" id="export-svg">Tải sơ đồ SVG</button></div></div>
+</div>
+</div>
+<div class="panel">
+<h2>Tính mạch điện trở DC</h2><p class="sub">Dùng cho mạch điện trở thuần nối tiếp hoặc song song với một nguồn áp DC lý tưởng.</p>
+<div class="grid">
+<div class="field"><label>Nguồn áp U (V)</label><input id="dc-u" type="number" value="12" min="0" step="any"></div>
+<div class="field"><label>Kiểu mắc</label><select id="dc-mode"><option value="series">Nối tiếp</option><option value="parallel">Song song</option></select></div>
+<div class="field"><label>R1 (Ω)</label><input id="dc-r1" type="number" value="100" min="0.000001" step="any"></div>
+<div class="field"><label>R2 (Ω)</label><input id="dc-r2" type="number" value="220" min="0.000001" step="any"></div>
+<div class="field"><label>R3 (Ω)</label><input id="dc-r3" type="number" value="330" min="0.000001" step="any"></div>
+</div><div class="actions"><button class="primary" id="solve-dc">Giải từng bước</button></div><div id="dc-result"></div>
+</div>
+</section>
+<section id="rlc" class="tabpage hidden">
+<div class="panel"><h2>Mạch RLC nối tiếp – nguồn xoay chiều 1 pha</h2><p class="sub">Tính ở trạng thái xác lập hình sin, dùng giá trị hiệu dụng RMS. Góc pha của dòng điện lấy điện áp nguồn làm mốc 0°.</p>
+<div class="grid">
+<div class="field"><label>Điện áp U (V RMS)</label><input id="ac-u" type="number" value="220" min="0" step="any"></div>
+<div class="field"><label>Tần số f (Hz)</label><input id="ac-f" type="number" value="50" min="0.000001" step="any"></div>
+<div class="field"><label>Điện trở R (Ω)</label><input id="ac-r" type="number" value="40" min="0" step="any"></div>
+<div class="field"><label>Cuộn cảm L (H)</label><input id="ac-l" type="number" value="0.15" min="0" step="any"></div>
+<div class="field"><label>Tụ điện C (µF, nhập 0 nếu không có)</label><input id="ac-c" type="number" value="100" min="0" step="any"></div>
+</div><div class="actions"><button class="primary" id="solve-ac">Giải mạch RLC</button></div><div id="ac-result"></div></div>
+</section>
+<section id="machine" class="tabpage hidden">
+<div class="panel"><h2>Máy điện 3 pha – công thức cơ bản</h2><p class="sub">Tính công suất điện 3 pha cân bằng và tốc độ đồng bộ. Nhập đúng đại lượng theo đề bài.</p>
+<div class="grid">
+<div class="field"><label>Điện áp dây U<sub>L</sub> (V)</label><input id="m-u" type="number" value="380" min="0" step="any"></div>
+<div class="field"><label>Dòng điện dây I<sub>L</sub> (A)</label><input id="m-i" type="number" value="10" min="0" step="any"></div>
+<div class="field"><label>Hệ số công suất cosφ</label><input id="m-cos" type="number" value="0.85" min="0" max="1" step="any"></div>
+<div class="field"><label>Tần số f (Hz)</label><input id="m-f" type="number" value="50" min="0.000001" step="any"></div>
+<div class="field"><label>Số cực từ P (2, 4, 6, 8...)</label><input id="m-p" type="number" value="4" min="2" step="2"></div>
+<div class="field"><label>Hiệu suất η (0–1)</label><input id="m-eta" type="number" value="0.9" min="0.000001" max="1" step="any"></div>
+</div><div class="actions"><button class="primary" id="solve-machine">Tính máy điện</button></div><div id="machine-result"></div>
+<h3>Nhắc nhanh đấu dây</h3><p><b>Sao (Y):</b> U dây = √3 × U pha; I dây = I pha.</p><p><b>Tam giác (Δ):</b> U dây = U pha; I dây = √3 × I pha.</p><p class="note">Số cực từ, số rãnh và kiểu dây quấn ảnh hưởng đến sơ đồ dây quấn thực tế. Bản này chưa tự sinh sơ đồ dây quấn/vector theo mọi quy ước của từng giáo trình.</p>
+</div>
+</section>
+<section id="grid" class="tabpage hidden">
+<div class="panel"><h2>Lưới điện – đường dây 3 pha cân bằng</h2><p class="sub">Ước tính sụt áp và tổn thất trên đường dây ngắn, tải cân bằng; bỏ qua điện dung đường dây. R và X là tổng trở mỗi pha tính theo chiều dài đường dây đã cho.</p>
+<div class="grid">
+<div class="field"><label>Điện áp dây U (V)</label><input id="g-u" type="number" value="22000" min="0.000001" step="any"></div>
+<div class="field"><label>Dòng điện dây I (A)</label><input id="g-i" type="number" value="40" min="0" step="any"></div>
+<div class="field"><label>Điện trở mỗi pha R (Ω)</label><input id="g-r" type="number" value="2" min="0" step="any"></div>
+<div class="field"><label>Điện kháng mỗi pha X (Ω)</label><input id="g-x" type="number" value="3" min="0" step="any"></div>
+<div class="field"><label>cosφ tải</label><input id="g-cos" type="number" value="0.9" min="0" max="1" step="any"></div>
+<div class="field"><label>Thời gian vận hành (h)</label><input id="g-t" type="number" value="8" min="0" step="any"></div>
+</div><div class="actions"><button class="primary" id="solve-grid">Tính lưới điện</button></div><div id="grid-result"></div></div>
+</section>
+<div class="panel"><h2>Phạm vi và độ tin cậy</h2><p>Đây là bản MVP phục vụ học tập. Hãy đối chiếu chiều dòng điện, quy ước dấu, giả thiết mô hình và đơn vị với sơ đồ/giáo trình của giảng viên trước khi nộp bài. Công cụ chưa thay thế phần mềm mô phỏng chuyên dụng hoặc kiểm định kỹ thuật.</p></div>
+<footer>Điện Kỹ Thuật Pro · Bản thử nghiệm 1.0 · Chạy cục bộ, không gửi dữ liệu lên máy chủ.</footer>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const fmt=(n,d=4)=>Number.isFinite(n)?n.toLocaleString('vi-VN',{maximumFractionDigits:d}):'không xác định';
+function resultBox(title,lines){return `<div class="result"><strong>${title}</strong><ol class="steps">${lines.map(x=>`<li>${x}</li>`).join('')}</ol></div>`}
+function num(id){return Number($(id).value)}
+function valid(vals){return vals.every(Number.isFinite)}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.tabpage').forEach(x=>x.classList.toggle('hidden',x.id!==b.dataset.tab))}));
+
+// Simple SVG schematic editor
+let parts=[], selected=null, nextId=1;
+const defaults={R:'100 Ω',L:'10 mH',C:'100 µF',V:'12 V DC',I:'1 A',GND:'0 V'};
+function addPart(type){const p={id:nextId++,type,name:type+(parts.filter(x=>x.type===type).length+1),value:defaults[type]};parts.push(p);selected=p.id;renderParts();}
+document.querySelectorAll('[data-add]').forEach(b=>b.addEventListener('click',()=>addPart(b.dataset.add)));
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function renderParts(){
+ const svg=$('drawing');let body=`<text x="20" y="28" font-size="14" fill="#65718a">Sơ đồ minh họa · chọn linh kiện để chỉnh sửa</text>`;
+ if(!parts.length) body+=`<text x="350" y="170" text-anchor="middle" font-size="17" fill="#98a2b3">Nhấn nút bên trái để thêm linh kiện</text>`;
+ parts.forEach((p,i)=>{let x=70+(i%4)*165,y=90+Math.floor(i/4)*115;let sym='';
+ if(p.type==='R')sym=`<path d="M ${x-40} ${y} h 14 l 8 -12 l 12 24 l 12 -24 l 12 24 l 8 -12 h 14" fill="none" stroke="#175cd3" stroke-width="2.5"/>`;
+ else if(p.type==='L')sym=`<path d="M ${x-40} ${y} h 8 a 10 10 0 0 1 20 0 a 10 10 0 0 1 20 0 a 10 10 0 0 1 20 0 h 8" fill="none" stroke="#175cd3" stroke-width="2.5"/>`;
+ else if(p.type==='C')sym=`<path d="M ${x-40} ${y} h 27 m 0 -17 v 34 m 26 -34 v 34 m 0 -17 h 27" fill="none" stroke="#175cd3" stroke-width="2.5"/>`;
+ else if(p.type==='V')sym=`<path d="M ${x-40} ${y} h 22 m 36 0 h 22" stroke="#175cd3" stroke-width="2.5"/><circle cx="${x}" cy="${y}" r="18" fill="white" stroke="#175cd3" stroke-width="2.5"/><text x="${x}" y="${y+5}" text-anchor="middle" font-size="17">＋</text>`;
+ else if(p.type==='I')sym=`<path d="M ${x-40} ${y} h 22 m 36 0 h 22" stroke="#175cd3" stroke-width="2.5"/><circle cx="${x}" cy="${y}" r="18" fill="white" stroke="#175cd3" stroke-width="2.5"/><path d="M ${x} ${y+9} v -17 m -6 6 l 6 -6 l 6 6" stroke="#175cd3" stroke-width="2"/>`;
+ else sym=`<path d="M ${x} ${y-22} v 12 m -12 0 h 24 m -18 6 l 6 6 l 6 -6" stroke="#175cd3" stroke-width="2.5" fill="none"/>`;
+ const is=p.id===selected;body+=`<g class="part ${is?'selected':''}" data-id="${p.id}">${sym}<text x="${x}" y="${y+34}" text-anchor="middle" font-size="14" font-weight="700" fill="#172033">${esc(p.name)}</text><text x="${x}" y="${y+52}" text-anchor="middle" font-size="12" fill="#65718a">${esc(p.value)}</text>${is?`<rect x="${x-62}" y="${y-35}" width="124" height="98" rx="7" fill="none" stroke="#175cd3" stroke-dasharray="4 3"/>`:''}</g>`});
+ svg.innerHTML=body;svg.querySelectorAll('[data-id]').forEach(g=>g.addEventListener('click',()=>{selected=Number(g.dataset.id);renderParts()}));
+ $('parts-list').innerHTML=parts.map(p=>`<button class="${p.id===selected?'selected':''}" data-pick="${p.id}">${esc(p.name)} · ${esc(p.value)}</button>`).join('');
+ $('parts-list').querySelectorAll('[data-pick]').forEach(b=>b.addEventListener('click',()=>{selected=Number(b.dataset.pick);renderParts()}));
+ const p=parts.find(x=>x.id===selected);$('selected-editor').classList.toggle('hidden',!p);
+ if(p){$('part-name').value=p.name;$('part-value').value=p.value}
+}
+$('save-part').addEventListener('click',()=>{let p=parts.find(x=>x.id===selected);if(p){p.name=$('part-name').value.trim()||p.name;p.value=$('part-value').value.trim();renderParts()}});
+$('delete-part').addEventListener('click',()=>{parts=parts.filter(x=>x.id!==selected);selected=parts.length?parts[parts.length-1].id:null;renderParts()});
+$('clear-drawing').addEventListener('click',()=>{parts=[];selected=null;renderParts()});
+$('export-svg').addEventListener('click',()=>{const svg=$('drawing').cloneNode(true);svg.setAttribute('xmlns','http://www.w3.org/2000/svg');const blob=new Blob([new XMLSerializer().serializeToString(svg)],{type:'image/svg+xml'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='so-do-mach-dien.svg';a.click();URL.revokeObjectURL(a.href)});
+renderParts();
+
+$('solve-dc').addEventListener('click',()=>{
+ const U=num('dc-u'),Rs=[num('dc-r1'),num('dc-r2'),num('dc-r3')],mode=$('dc-mode').value,out=$('dc-result');
+ if(!valid([U,...Rs])||U<0||Rs.some(r=>r<=0)){out.innerHTML='<p class="note">Vui lòng nhập U ≥ 0 và các điện trở R > 0.</p>';return}
+ let Req,I,steps=[];
+ if(mode==='series'){Req=Rs.reduce((a,b)=>a+b,0);I=U/Req;steps.push(`Điện trở tương đương: R<sub>tđ</sub> = R₁ + R₂ + R₃ = ${Rs.map(fmt).join(' + ')} = <b>${fmt(Req)} Ω</b>.`,`Dòng mạch chính: I = U/R<sub>tđ</sub> = ${fmt(U)}/${fmt(Req)} = <b>${fmt(I)} A</b>.`);Rs.forEach((r,i)=>steps.push(`Điện áp trên R${i+1}: U${i+1} = I·R${i+1} = ${fmt(I)} × ${fmt(r)} = <b>${fmt(I*r)} V</b>.`))}
+ else{Req=1/Rs.reduce((a,b)=>a+1/b,0);I=U/Req;steps.push(`Điện trở tương đương: 1/R<sub>tđ</sub> = 1/R₁ + 1/R₂ + 1/R₃; R<sub>tđ</sub> = <b>${fmt(Req)} Ω</b>.`,`Điện áp mỗi nhánh bằng nguồn: U₁ = U₂ = U₃ = ${fmt(U)} V.`);Rs.forEach((r,i)=>steps.push(`Dòng qua R${i+1}: I${i+1} = U/R${i+1} = ${fmt(U)}/${fmt(r)} = <b>${fmt(U/r)} A</b>.`));steps.push(`Dòng nguồn: I = I₁ + I₂ + I₃ = <b>${fmt(I)} A</b>.`)}
+ steps.push(`Công suất toàn mạch: P = U·I = ${fmt(U)} × ${fmt(I)} = <b>${fmt(U*I)} W</b>.`);out.innerHTML=resultBox('Kết quả mạch DC',steps)
+});
+$('solve-ac').addEventListener('click',()=>{
+ const U=num('ac-u'),f=num('ac-f'),R=num('ac-r'),L=num('ac-l'),Cuf=num('ac-c'),out=$('ac-result');
+ if(!valid([U,f,R,L,Cuf])||U<0||f<=0||R<0||L<0||Cuf<0||R+L+Cuf===0){out.innerHTML='<p class="note">Kiểm tra lại dữ liệu; U, R, L, C không âm và f > 0.</p>';return}
+ const w=2*Math.PI*f,XL=w*L,XC=Cuf>0?1/(w*Cuf*1e-6):0,X=XL-XC,Z=Math.hypot(R,X),I=Z?U/Z:NaN,phi=Math.atan2(X,R)*180/Math.PI,P=I*I*R,Q=I*I*X,S=U*I,pf=Z?R/Z:NaN;
+ out.innerHTML=resultBox('Kết quả RLC nối tiếp',[
+ `Tần số góc: ω = 2πf = 2π × ${fmt(f)} = <b>${fmt(w)} rad/s</b>.`,
+ `Cảm kháng: X<sub>L</sub> = ωL = ${fmt(w)} × ${fmt(L)} = <b>${fmt(XL)} Ω</b>.`,
+ Cuf>0?`Dung kháng: X<sub>C</sub> = 1/(ωC) = <b>${fmt(XC)} Ω</b>.`:'Không có tụ điện: X_C = 0 Ω.',
+ `Điện kháng tổng: X = X<sub>L</sub> − X<sub>C</sub> = <b>${fmt(X)} Ω</b> (${X>0?'cảm':X<0?'dung':'cộng hưởng'}).`,
+ `Tổng trở: Z = √(R² + X²) = √(${fmt(R)}² + ${fmt(X)}²) = <b>${fmt(Z)} Ω</b>.`,
+ `Dòng điện hiệu dụng: I = U/Z = ${fmt(U)}/${fmt(Z)} = <b>${fmt(I)} A</b>.`,
+ `Góc tổng trở: φ = atan2(X,R) = <b>${fmt(phi,2)}°</b>. Vì U làm mốc 0°, góc dòng điện I = <b>${fmt(-phi,2)}°</b>.`,
+ `Hệ số công suất: cosφ = R/Z = <b>${fmt(pf)}</b>.`,
+ `Công suất: P = I²R = <b>${fmt(P)} W</b>; Q = I²X = <b>${fmt(Q)} var</b>; S = UI = <b>${fmt(S)} VA</b>.`
+ ])
+});
+$('solve-machine').addEventListener('click',()=>{
+ const U=num('m-u'),I=num('m-i'),pf=num('m-cos'),f=num('m-f'),P=num('m-p'),eta=num('m-eta'),out=$('machine-result');
+ if(!valid([U,I,pf,f,P,eta])||U<0||I<0||pf<0||pf>1||f<=0||P<=0||P%2!==0||eta<=0||eta>1){out.innerHTML='<p class="note">Nhập số hợp lệ; cosφ và η trong (0,1], P là số cực chẵn.</p>';return}
+ const S=Math.sqrt(3)*U*I,Pin=S*pf,n=120*f/P,Pout=Pin*eta;
+ out.innerHTML=resultBox('Kết quả máy điện 3 pha',[
+ `Công suất biểu kiến: S = √3 U<sub>d</sub>I<sub>d</sub> = √3 × ${fmt(U)} × ${fmt(I)} = <b>${fmt(S)} VA</b>.`,
+ `Công suất tác dụng điện: P₁ = √3 U<sub>d</sub>I<sub>d</sub>cosφ = ${fmt(S)} × ${fmt(pf)} = <b>${fmt(Pin)} W</b>.`,
+ `Tốc độ đồng bộ: n₁ = 120f/P = 120 × ${fmt(f)}/${fmt(P)} = <b>${fmt(n)} vòng/phút</b>.`,
+ `Nếu η là hiệu suất tổng, công suất đầu ra ước tính: P₂ = ηP₁ = ${fmt(eta)} × ${fmt(Pin)} = <b>${fmt(Pout)} W</b>.`,
+ `Lưu ý: đây là công thức cơ bản cho hệ 3 pha cân bằng; chưa tính dòng khởi động, trượt, tổn hao riêng hay thông số tương đương động cơ.`
+ ])
+});
+$('solve-grid').addEventListener('click',()=>{
+ const U=num('g-u'),I=num('g-i'),R=num('g-r'),X=num('g-x'),pf=num('g-cos'),t=num('g-t'),out=$('grid-result');
+ if(!valid([U,I,R,X,pf,t])||U<=0||I<0||R<0||X<0||pf<0||pf>1||t<0){out.innerHTML='<p class="note">Kiểm tra dữ liệu: U > 0, R/X/I/t ≥ 0, cosφ từ 0 đến 1.</p>';return}
+ const sin=Math.sqrt(1-pf*pf),dU=Math.sqrt(3)*I*(R*pf+X*sin),pct=100*dU/U,Pcu=3*I*I*R,PlossKwh=Pcu*t/1000,Pload=Math.sqrt(3)*U*I*pf;
+ out.innerHTML=resultBox('Kết quả đường dây 3 pha',[
+ `sinφ = √(1 − cos²φ) = <b>${fmt(sin)}</b>.`,
+ `Sụt áp xấp xỉ: ΔU = √3·I·(Rcosφ + Xsinφ) = √3 × ${fmt(I)} × (${fmt(R)}×${fmt(pf)} + ${fmt(X)}×${fmt(sin)}) = <b>${fmt(dU)} V</b>.`,
+ `Phần trăm sụt áp: ΔU% = ΔU/U × 100% = ${fmt(dU)}/${fmt(U)} × 100% = <b>${fmt(pct)}%</b>.`,
+ `Tổn thất công suất đồng: ΔP = 3I²R = 3 × ${fmt(I)}² × ${fmt(R)} = <b>${fmt(Pcu)} W</b>.`,
+ `Điện năng tổn thất trong ${fmt(t)} giờ: ΔA = ΔP·t = <b>${fmt(PlossKwh)} kWh</b>.`,
+ `Công suất tác dụng tải xấp xỉ: P = √3·U·I·cosφ = <b>${fmt(Pload/1000)} kW</b>.`,
+ `Mô hình xấp xỉ cho đường dây ngắn, tải cân bằng; với lưới thực cần xét sơ đồ, chiều dài, thông số từng đoạn, máy biến áp và điều kiện vận hành.`
+ ])
+});
+</script>
+</body></html>
